@@ -60,3 +60,9 @@ Mouse Actions
 
 #### 📝 License
 This project is licensed under the MIT License.
+
+## 🛡️ Privacy & Security
+- **Offline First:** LuminaPlayer does not connect to the internet. 
+- **Zero Telemetry:** No usage data is collected, tracked, or shared.
+- **Open Source:** Every line of code is available for audit.
+- **Native Tech:** Built using standard Microsoft .NET libraries.
