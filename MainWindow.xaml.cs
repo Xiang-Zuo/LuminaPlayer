@@ -78,22 +78,8 @@ namespace LuminaPlayer
 
         private void PlayProgressBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // if (_playlist[_currentIndex].Type != MediaType.Video) return;
-
-            // // Calculate click position as a percentage of the bar width
-            // double mouseX = e.GetPosition(PlayProgressBar).X;
-            // double ratio = mouseX / PlayProgressBar.ActualWidth;
-            
-            // if (VideoPlayer.NaturalDuration.HasTimeSpan) {
-            //     double newSeconds = ratio * VideoPlayer.NaturalDuration.TimeSpan.TotalSeconds;
-            //     VideoPlayer.Position = TimeSpan.FromSeconds(newSeconds);
-                
-            //     // Update bar immediately for visual feedback
-            //     PlayProgressBar.Value = ratio * 100;
-            // }
             if (_playlist[_currentIndex].Type != MediaType.Video) return;
-
-            // ... your existing seek logic ...
+            
             double mouseX = e.GetPosition(PlayProgressBar).X;
             double ratio = mouseX / PlayProgressBar.ActualWidth;
             
