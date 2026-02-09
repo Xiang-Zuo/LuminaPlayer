@@ -1,0 +1,21 @@
+## Visual Studio Build Outputs
+bin/
+obj/
+[Rr]elease/
+[Dd]ebug/
+
+## Visual Studio User Files
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+## .NET Core / .NET 8 Specific
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
