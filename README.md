@@ -33,7 +33,6 @@ dotnet run
 
 *Note: The app will prompt you to select a media folder upon launch.*
 
-
 ### 3. Export to a Portable `.exe`
 To package the app into a single, shareable file:
 ```powershell
@@ -42,7 +41,7 @@ dotnet publish -c Release -r win-x64 --self-contained false /p:PublishSingleFile
 The output will be located in:
 `bin\Release\net8.0-windows\win-x64\publish\LuminaPlayer.exe`
 
-#### 🎮 How to Use
+## 🎮 How to Use
 Keyboard Shortcuts
 |Key	|Action|
 |--------|-------|
@@ -58,7 +57,7 @@ Mouse Actions
 
 - Move Mouse: Shows the cursor and progress bar (auto-hides after 2 seconds).
 
-#### 📝 License
+## 📝 License
 This project is licensed under the MIT License.
 
 ## 🛡️ Privacy & Security
