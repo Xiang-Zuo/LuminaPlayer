@@ -351,7 +351,15 @@ namespace LuminaPlayer
             _currentIndex = -1;
             LoadPlaylist();
 
-            CloseConfig();
+            // Close config overlay WITHOUT restoring pause state —
+            // we're about to start fresh playback anyway
+            ConfigOverlay.Visibility = Visibility.Collapsed;
+            _cursorTimer.Stop();
+            if (!_playlistOpen)
+                this.Cursor = Cursors.None;
+
+            // Reset pause so new playback starts fresh
+            _isPaused = false;
 
             // If new playlist is empty, show empty state
             if (!_playlist.Any())
