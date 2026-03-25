@@ -89,7 +89,7 @@ namespace LuminaPlayer
                 var files = Directory.EnumerateFiles(_folderPath, "*.*", searchOption)
                     .Select(f => new { Path = f, Ext = Path.GetExtension(f).ToLower() })
                     .Where(f => imgExt.Contains(f.Ext) || vidExt.Contains(f.Ext))
-                    .Select(f => new MediaItem(f.Path, imgExt.Contains(f.Ext) ? MediaType.Image : MediaType.Video))
+                    .Select(f => new MediaItem(f.Path, imgExt.Contains(f.Ext) ? MediaType.Image : MediaType.Video, _folderPath))
                     .Where(f => _sourceType == SourceTypeFilter.All
                         || (_sourceType == SourceTypeFilter.ImagesOnly && f.Type == MediaType.Image)
                         || (_sourceType == SourceTypeFilter.VideosOnly && f.Type == MediaType.Video))
