@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace LuminaPlayer.Models
 {
@@ -9,7 +11,37 @@ namespace LuminaPlayer.Models
         public string FilePath { get; }
         public MediaType Type { get; }
         public string FileName => Path.GetFileName(FilePath);
-        public string TypeIcon => Type == MediaType.Image ? "IMG" : "VID";
+        public bool IsVideo => Type == MediaType.Video;
+
+        private BitmapSource? _thumbnail;
+        private bool _thumbnailLoaded;
+
+        public BitmapSource? Thumbnail
+        {
+            get
+            {
+                if (!_thumbnailLoaded)
+                {
+                    _thumbnailLoaded = true;
+                    if (Type == MediaType.Image)
+                    {
+                        try
+                        {
+                            var bmp = new BitmapImage();
+                            bmp.BeginInit();
+                            bmp.UriSource = new Uri(FilePath);
+                            bmp.DecodePixelWidth = 60;
+                            bmp.CacheOption = BitmapCacheOption.OnLoad;
+                            bmp.EndInit();
+                            bmp.Freeze();
+                            _thumbnail = bmp;
+                        }
+                        catch { }
+                    }
+                }
+                return _thumbnail;
+            }
+        }
 
         public MediaItem(string filePath, MediaType type)
         {

@@ -427,6 +427,7 @@ namespace LuminaPlayer
         #region Playlist Panel
 
         private bool _playlistOpen = false;
+        private double _playlistWidth = 300;
 
         private void TogglePlaylistPanel()
         {
@@ -434,14 +435,24 @@ namespace LuminaPlayer
 
             if (_playlistOpen)
             {
+                PlaylistColumn.Width = new GridLength(_playlistWidth);
+                SplitterColumn.Width = GridLength.Auto;
                 PlaylistPanel.Visibility = Visibility.Visible;
+                PlaylistSplitter.Visibility = Visibility.Visible;
                 PlaylistToggleButton.Content = "\u25B6"; // right arrow = close
                 this.Cursor = Cursors.Arrow;
                 SyncPlaylistSelection();
             }
             else
             {
+                // Remember current width before closing
+                if (PlaylistColumn.ActualWidth > 0)
+                    _playlistWidth = PlaylistColumn.ActualWidth;
+
+                PlaylistColumn.Width = new GridLength(0);
+                SplitterColumn.Width = new GridLength(0);
                 PlaylistPanel.Visibility = Visibility.Collapsed;
+                PlaylistSplitter.Visibility = Visibility.Collapsed;
                 PlaylistToggleButton.Content = "\u25C0"; // left arrow = open
                 if (ConfigOverlay.Visibility != Visibility.Visible)
                     this.Cursor = Cursors.None;
@@ -478,13 +489,11 @@ namespace LuminaPlayer
                 return;
             }
 
-            // Escape: close config first, then playlist, then app
+            // Escape: close config if open, otherwise always close app
             if (e.Key == Key.Escape)
             {
                 if (ConfigOverlay.Visibility == Visibility.Visible)
                     CloseConfig();
-                else if (_playlistOpen)
-                    TogglePlaylistPanel();
                 else
                     this.Close();
                 return;
