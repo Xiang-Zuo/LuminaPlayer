@@ -235,7 +235,7 @@
                     </Grid>
                 </Border>
 
-                <!-- File list with thumbnails -->
+                <!-- File list -->
                 <ListBox x:Name="PlaylistListBox"
                          Grid.Row="1"
                          Background="Transparent"
@@ -247,23 +247,22 @@
                          VirtualizingPanel.IsVirtualizing="True"
                          VirtualizingPanel.VirtualizationMode="Recycling"
                          VirtualizingPanel.ScrollUnit="Pixel">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
+                    <ListBox.Resources>
+                        <!-- Card template: thumbnail + label (for All / Images Only) -->
+                        <DataTemplate x:Key="CardTemplate">
                             <StackPanel Margin="4">
-                                <!-- Thumbnail: 16:9 fixed ratio, image contained within -->
                                 <Border Background="#222222" CornerRadius="4"
                                         ClipToBounds="True">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Height"
-                                                Value="{Binding ActualWidth, RelativeSource={RelativeSource Self},
-                                                        Converter={StaticResource RatioConverter}}"/>
-                                    </Style>
-                                </Border.Style>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Height"
+                                                    Value="{Binding ActualWidth, RelativeSource={RelativeSource Self},
+                                                            Converter={StaticResource RatioConverter}}"/>
+                                        </Style>
+                                    </Border.Style>
                                     <Grid>
                                         <Image Source="{Binding Thumbnail}"
                                                Stretch="Uniform"/>
-                                        <!-- Video placeholder icon -->
                                         <TextBlock Text="&#x25B6;"
                                                    FontSize="28"
                                                    Foreground="#888888"
@@ -282,8 +281,6 @@
                                         </TextBlock>
                                     </Grid>
                                 </Border>
-
-                                <!-- Single line: filename + relative path, with tooltip -->
                                 <TextBlock Text="{Binding DisplayLabel}"
                                            ToolTip="{Binding DisplayLabel}"
                                            FontSize="12"
@@ -291,7 +288,32 @@
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </DataTemplate>
-                    </ListBox.ItemTemplate>
+
+                        <!-- Compact template: single row button-like (for Videos Only) -->
+                        <DataTemplate x:Key="CompactTemplate">
+                            <Border Background="#282828" CornerRadius="4"
+                                    Padding="10,8" Margin="2,2">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="&#x25B6;"
+                                               FontSize="13"
+                                               Foreground="#888888"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding DisplayLabel}"
+                                               ToolTip="{Binding DisplayLabel}"
+                                               FontSize="13"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.Resources>
                 </ListBox>
 
                 <!-- Footer hint -->

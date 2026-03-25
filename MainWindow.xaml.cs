@@ -121,6 +121,11 @@ namespace LuminaPlayer
         private void RefreshPlaylistPanel()
         {
             _isUpdatingSelection = true;
+
+            // Pick template based on source type
+            var templateKey = _sourceType == SourceTypeFilter.VideosOnly ? "CompactTemplate" : "CardTemplate";
+            PlaylistListBox.ItemTemplate = (DataTemplate)PlaylistListBox.Resources[templateKey];
+
             PlaylistListBox.ItemsSource = null;
             PlaylistListBox.ItemsSource = _playlist;
             PlaylistCountText.Text = $"{_playlist.Count} items";
