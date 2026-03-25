@@ -161,6 +161,27 @@
                        VerticalAlignment="Center"
                        Visibility="Collapsed"/>
 
+            <!-- Delete indicator (top-left corner) -->
+            <Border x:Name="DeleteIndicator"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Margin="20,20"
+                    Background="#AA000000"
+                    CornerRadius="8"
+                    Padding="14,10"
+                    Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#x1F5D1;"
+                               FontSize="20"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="Moved to trash"
+                               Foreground="#CCCCCC"
+                               FontSize="14"
+                               Margin="8,0,0,0"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
             <!-- Playlist toggle arrow (always visible, pinned to right edge) -->
             <Button x:Name="PlaylistToggleButton"
                     Style="{StaticResource ToggleArrowButton}"
@@ -295,6 +316,38 @@
                               FontSize="16"
                               IsChecked="True"
                               Margin="0,0,0,24"/>
+
+                    <!-- Source Type -->
+                    <TextBlock Text="Source Type"
+                               Foreground="#AAAAAA"
+                               FontSize="16"
+                               Margin="0,0,0,10"/>
+                    <Grid Margin="0,0,0,24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <RadioButton x:Name="SourceAllRadio"
+                                     Content="All"
+                                     Foreground="White"
+                                     FontSize="16"
+                                     IsChecked="True"
+                                     GroupName="SourceType"
+                                     Grid.Column="0"/>
+                        <RadioButton x:Name="SourceImageRadio"
+                                     Content="Images Only"
+                                     Foreground="White"
+                                     FontSize="16"
+                                     GroupName="SourceType"
+                                     Grid.Column="1"/>
+                        <RadioButton x:Name="SourceVideoRadio"
+                                     Content="Videos Only"
+                                     Foreground="White"
+                                     FontSize="16"
+                                     GroupName="SourceType"
+                                     Grid.Column="2"/>
+                    </Grid>
 
                     <!-- Image Duration -->
                     <Grid Margin="0,0,0,10">

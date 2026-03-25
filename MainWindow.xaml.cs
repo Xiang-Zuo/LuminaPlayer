@@ -12,6 +12,8 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace LuminaPlayer
 {
+    public enum SourceTypeFilter { All, ImagesOnly, VideosOnly }
+
     public partial class MainWindow : Window
     {
         private readonly string _folderPath;
@@ -24,11 +26,13 @@ namespace LuminaPlayer
         private bool _isRandom = true;
         private bool _includeSubfolders = true;
         private double _imageDuration = 5.0;
+        private SourceTypeFilter _sourceType = SourceTypeFilter.All;
 
         // Timers
         private readonly DispatcherTimer _progressTimer;
         private double _secondsElapsed = 0;
         private readonly DispatcherTimer _cursorTimer;
+        private readonly DispatcherTimer _deleteIndicatorTimer;
 
         // State
         private DateTime _lastLeftClickTime = DateTime.MinValue;
@@ -51,6 +55,12 @@ namespace LuminaPlayer
                 if (ConfigOverlay.Visibility != Visibility.Visible && !_playlistOpen)
                     this.Cursor = Cursors.None;
                 _cursorTimer.Stop();
+            };
+
+            _deleteIndicatorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _deleteIndicatorTimer.Tick += (s, e) => {
+                DeleteIndicator.Visibility = Visibility.Collapsed;
+                _deleteIndicatorTimer.Stop();
             };
 
             LoadPlaylist();
@@ -80,6 +90,9 @@ namespace LuminaPlayer
                     .Select(f => new { Path = f, Ext = Path.GetExtension(f).ToLower() })
                     .Where(f => imgExt.Contains(f.Ext) || vidExt.Contains(f.Ext))
                     .Select(f => new MediaItem(f.Path, imgExt.Contains(f.Ext) ? MediaType.Image : MediaType.Video))
+                    .Where(f => _sourceType == SourceTypeFilter.All
+                        || (_sourceType == SourceTypeFilter.ImagesOnly && f.Type == MediaType.Image)
+                        || (_sourceType == SourceTypeFilter.VideosOnly && f.Type == MediaType.Video))
                     .ToList();
 
                 if (_isRandom)
@@ -265,10 +278,14 @@ namespace LuminaPlayer
 
             _playlist.RemoveAt(_currentIndex);
 
+            // Show delete indicator
+            _deleteIndicatorTimer.Stop();
+            DeleteIndicator.Visibility = Visibility.Visible;
+            _deleteIndicatorTimer.Start();
+
             if (_playlist.Count == 0)
             {
-                MessageBox.Show("No more media in playlist.");
-                this.Close();
+                ShowEmptyState();
                 return;
             }
 
@@ -294,6 +311,9 @@ namespace LuminaPlayer
             RandomOrderRadio.IsChecked = _isRandom;
             OriginalOrderRadio.IsChecked = !_isRandom;
             SubfoldersCheckBox.IsChecked = _includeSubfolders;
+            SourceAllRadio.IsChecked = _sourceType == SourceTypeFilter.All;
+            SourceImageRadio.IsChecked = _sourceType == SourceTypeFilter.ImagesOnly;
+            SourceVideoRadio.IsChecked = _sourceType == SourceTypeFilter.VideosOnly;
             DurationSlider.Value = _imageDuration;
             DurationValueText.Text = _imageDuration.ToString("0");
 
@@ -319,20 +339,24 @@ namespace LuminaPlayer
             bool newRandom = RandomOrderRadio.IsChecked == true;
             bool newSubfolders = SubfoldersCheckBox.IsChecked == true;
             double newDuration = DurationSlider.Value;
+            SourceTypeFilter newSourceType = SourceAllRadio.IsChecked == true ? SourceTypeFilter.All
+                : SourceImageRadio.IsChecked == true ? SourceTypeFilter.ImagesOnly
+                : SourceTypeFilter.VideosOnly;
 
             bool orderChanged = newRandom != _isRandom;
             bool subfoldersChanged = newSubfolders != _includeSubfolders;
             bool durationChanged = Math.Abs(newDuration - _imageDuration) > 0.01;
+            bool sourceChanged = newSourceType != _sourceType;
 
             // If nothing changed, just close
-            if (!orderChanged && !subfoldersChanged && !durationChanged)
+            if (!orderChanged && !subfoldersChanged && !durationChanged && !sourceChanged)
             {
                 CloseConfig();
                 return;
             }
 
             // Duration-only change: no reload needed
-            if (durationChanged && !orderChanged && !subfoldersChanged)
+            if (durationChanged && !orderChanged && !subfoldersChanged && !sourceChanged)
             {
                 _imageDuration = newDuration;
                 CloseConfig();
@@ -346,6 +370,7 @@ namespace LuminaPlayer
             _isRandom = newRandom;
             _includeSubfolders = newSubfolders;
             _imageDuration = newDuration;
+            _sourceType = newSourceType;
 
             // Reload playlist with new settings
             _currentIndex = -1;
