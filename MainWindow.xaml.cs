@@ -47,7 +47,9 @@ namespace LuminaPlayer
 
             _cursorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
             _cursorTimer.Tick += (s, e) => {
-                this.Cursor = Cursors.None;
+                // Only hide cursor when no panels are open
+                if (ConfigOverlay.Visibility != Visibility.Visible && !_playlistOpen)
+                    this.Cursor = Cursors.None;
                 _cursorTimer.Stop();
             };
 
@@ -302,8 +304,11 @@ namespace LuminaPlayer
         private void CloseConfig()
         {
             ConfigOverlay.Visibility = Visibility.Collapsed;
-            this.Cursor = Cursors.None;
             _cursorTimer.Stop();
+
+            // Only hide cursor if playlist panel is also closed
+            if (!_playlistOpen)
+                this.Cursor = Cursors.None;
 
             // Restore pause state
             if (!_wasPausedBeforeConfig && _isPaused) TogglePause();
@@ -388,15 +393,31 @@ namespace LuminaPlayer
 
         #region Playlist Panel
 
+        private bool _playlistOpen = false;
+
         private void TogglePlaylistPanel()
         {
-            if (PlaylistPanel.Visibility == Visibility.Visible)
-                PlaylistPanel.Visibility = Visibility.Collapsed;
-            else
+            _playlistOpen = !_playlistOpen;
+
+            if (_playlistOpen)
             {
                 PlaylistPanel.Visibility = Visibility.Visible;
+                PlaylistToggleButton.Content = "\u25B6"; // right arrow = close
+                this.Cursor = Cursors.Arrow;
                 SyncPlaylistSelection();
             }
+            else
+            {
+                PlaylistPanel.Visibility = Visibility.Collapsed;
+                PlaylistToggleButton.Content = "\u25C0"; // left arrow = open
+                if (ConfigOverlay.Visibility != Visibility.Visible)
+                    this.Cursor = Cursors.None;
+            }
+        }
+
+        private void PlaylistToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            TogglePlaylistPanel();
         }
 
         private void PlaylistListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -429,8 +450,8 @@ namespace LuminaPlayer
             {
                 if (ConfigOverlay.Visibility == Visibility.Visible)
                     CloseConfig();
-                else if (PlaylistPanel.Visibility == Visibility.Visible)
-                    PlaylistPanel.Visibility = Visibility.Collapsed;
+                else if (_playlistOpen)
+                    TogglePlaylistPanel();
                 else
                     this.Close();
                 return;

@@ -12,9 +12,10 @@
         <!-- Dark ListBox style -->
         <Style x:Key="DarkListBoxItem" TargetType="ListBoxItem">
             <Setter Property="Foreground" Value="#CCCCCC"/>
-            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Padding" Value="10,8"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
@@ -41,7 +42,8 @@
             <Setter Property="Background" Value="#333333"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="Padding" Value="24,10"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -85,11 +87,43 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Toggle arrow button style -->
+        <Style x:Key="ToggleArrowButton" TargetType="Button">
+            <Setter Property="Background" Value="#CC222222"/>
+            <Setter Property="Foreground" Value="#AAAAAA"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="4,0,0,4" Padding="2,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#CC333333"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
+    <!-- Root: horizontal layout with content + playlist -->
     <Grid>
-        <!-- Layer 0: Main media content -->
-        <Grid x:Name="ContentGrid" Background="Black"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition x:Name="PlaylistColumn" Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Column 0: Main media content -->
+        <Grid x:Name="ContentGrid" Grid.Column="0" Background="Black"
               MouseMove="Grid_MouseMove"
               MouseLeftButtonDown="Grid_MouseLeftButtonDown">
 
@@ -126,15 +160,23 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                        Visibility="Collapsed"/>
+
+            <!-- Playlist toggle arrow (always visible, pinned to right edge) -->
+            <Button x:Name="PlaylistToggleButton"
+                    Style="{StaticResource ToggleArrowButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Height="60"
+                    Click="PlaylistToggleButton_Click"
+                    Content="&#x25C0;"/>
         </Grid>
 
-        <!-- Layer 1: Playlist panel (right side) -->
-        <Border x:Name="PlaylistPanel"
-                HorizontalAlignment="Right"
-                Width="280"
-                Background="#E8111111"
+        <!-- Column 1: Playlist panel (300px, hidden by default) -->
+        <Border x:Name="PlaylistPanel" Grid.Column="1"
+                Width="300"
+                Background="#FF111111"
                 Visibility="Collapsed">
-            <Grid>
+            <Grid Cursor="Arrow">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -142,17 +184,17 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header -->
-                <Border Grid.Row="0" Padding="12,10" Background="#222222">
+                <Border Grid.Row="0" Padding="14,12" Background="#222222">
                     <Grid>
                         <TextBlock Text="Playlist"
                                    Foreground="White"
-                                   FontSize="14"
+                                   FontSize="15"
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
                         <TextBlock x:Name="PlaylistCountText"
                                    HorizontalAlignment="Right"
                                    Foreground="#888888"
-                                   FontSize="12"
+                                   FontSize="13"
                                    VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
@@ -164,6 +206,7 @@
                          BorderThickness="0"
                          ItemContainerStyle="{StaticResource DarkListBoxItem}"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                          SelectionChanged="PlaylistListBox_SelectionChanged"
                          VirtualizingPanel.IsVirtualizing="True">
                     <ListBox.ItemTemplate>
@@ -177,10 +220,11 @@
                                            Text="{Binding TypeIcon}"
                                            Foreground="#888888"
                                            FontSize="11"
-                                           Width="20"
+                                           Width="28"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1"
                                            Text="{Binding FileName}"
+                                           FontSize="13"
                                            TextTrimming="CharacterEllipsis"
                                            VerticalAlignment="Center"/>
                             </Grid>
@@ -189,7 +233,7 @@
                 </ListBox>
 
                 <!-- Footer hint -->
-                <Border Grid.Row="2" Padding="12,6" Background="#1A1A1A">
+                <Border Grid.Row="2" Padding="14,8" Background="#1A1A1A">
                     <TextBlock Text="Del = move to trash"
                                Foreground="#666666"
                                FontSize="11"
@@ -198,33 +242,33 @@
             </Grid>
         </Border>
 
-        <!-- Layer 2: Config panel overlay -->
-        <Grid x:Name="ConfigOverlay" Visibility="Collapsed">
+        <!-- Config panel overlay (spans all columns, on top of everything) -->
+        <Grid x:Name="ConfigOverlay" Grid.ColumnSpan="2"
+              Visibility="Collapsed" Cursor="Arrow">
             <!-- Dim background -->
             <Border Background="#80000000"
                     MouseLeftButtonDown="ConfigOverlayBg_Click"/>
 
-            <!-- Config form -->
-            <Border Width="380"
+            <!-- Config form (1.5x bigger: 570px wide, larger fonts/padding) -->
+            <Border Width="570"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Background="#FF1E1E1E"
-                    CornerRadius="10"
-                    Padding="28,24"
-                    Effect="{x:Null}">
+                    CornerRadius="12"
+                    Padding="42,36">
                 <StackPanel>
                     <TextBlock Text="Settings"
                                Foreground="White"
-                               FontSize="20"
+                               FontSize="28"
                                FontWeight="SemiBold"
-                               Margin="0,0,0,20"/>
+                               Margin="0,0,0,28"/>
 
                     <!-- Play Order -->
                     <TextBlock Text="Play Order"
                                Foreground="#AAAAAA"
-                               FontSize="12"
-                               Margin="0,0,0,6"/>
-                    <Grid Margin="0,0,0,16">
+                               FontSize="16"
+                               Margin="0,0,0,10"/>
+                    <Grid Margin="0,0,0,24">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
@@ -232,12 +276,14 @@
                         <RadioButton x:Name="RandomOrderRadio"
                                      Content="Random"
                                      Foreground="White"
+                                     FontSize="16"
                                      IsChecked="True"
                                      GroupName="PlayOrder"
                                      Grid.Column="0"/>
                         <RadioButton x:Name="OriginalOrderRadio"
                                      Content="Original"
                                      Foreground="White"
+                                     FontSize="16"
                                      GroupName="PlayOrder"
                                      Grid.Column="1"/>
                     </Grid>
@@ -246,12 +292,13 @@
                     <CheckBox x:Name="SubfoldersCheckBox"
                               Content="Include Subfolders"
                               Foreground="White"
+                              FontSize="16"
                               IsChecked="True"
-                              Margin="0,0,0,16"/>
+                              Margin="0,0,0,24"/>
 
                     <!-- Image Duration -->
-                    <Grid Margin="0,0,0,6">
-                        <TextBlock Foreground="#AAAAAA" FontSize="12">
+                    <Grid Margin="0,0,0,10">
+                        <TextBlock Foreground="#AAAAAA" FontSize="16">
                             <Run Text="Image Display Duration: "/>
                             <Run x:Name="DurationValueText" Text="5"/>
                             <Run Text="s"/>
@@ -265,7 +312,7 @@
                             TickFrequency="1"
                             SmallChange="1"
                             LargeChange="5"
-                            Margin="0,0,0,24"
+                            Margin="0,0,0,36"
                             ValueChanged="DurationSlider_ValueChanged"/>
 
                     <!-- Buttons -->
@@ -273,7 +320,7 @@
                         <Button Content="Apply &amp; Close"
                                 Style="{StaticResource AccentButton}"
                                 Click="ConfigApply_Click"
-                                Margin="0,0,8,0"/>
+                                Margin="0,0,12,0"/>
                         <Button Content="Cancel"
                                 Style="{StaticResource DarkButton}"
                                 Click="ConfigClose_Click"/>
