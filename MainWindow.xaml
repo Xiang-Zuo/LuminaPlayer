@@ -203,6 +203,7 @@
                       HorizontalAlignment="Stretch"
                       Background="#333333"
                       Cursor="SizeWE"
+                      Focusable="False"
                       Visibility="Collapsed"
                       ResizeBehavior="PreviousAndNext"/>
 
